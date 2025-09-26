@@ -1,0 +1,10 @@
+# Environment variables for HarvestLink
+# Copy this file to .env and fill in your actual values
+
+# Twilio Configuration
+TWILIO_ACCOUNT_SID=your_twilio_account_sid_here
+TWILIO_AUTH_TOKEN=your_twilio_auth_token_here
+TWILIO_PHONE_NUMBER=your_twilio_phone_number_here
+
+# Optional: Database URL for production
+DATABASE_URL=sqlite:///harvestlink.db
