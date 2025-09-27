@@ -902,7 +902,7 @@ def handle_whatsapp():
                 return jsonify({'status': 'success'})
             
             # Check if it's Meta WhatsApp format
-            elif 'entry' in data:
+            elif data and 'entry' in data:
                 # Meta WhatsApp format
                 entry = data['entry'][0]
                 changes = entry['changes'][0]
