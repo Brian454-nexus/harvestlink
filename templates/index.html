@@ -7,6 +7,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -14,10 +16,11 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f8fffe 0%, #e8f5e8 100%);
-            color: #2d5016;
-            line-height: 1.6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.5;
+            font-weight: 400;
         }
 
         .container {
@@ -28,11 +31,12 @@
 
         /* Header */
         .header {
-            background: white;
-            box-shadow: 0 2px 20px rgba(45, 80, 22, 0.1);
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
             position: sticky;
             top: 0;
             z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .nav {
@@ -45,14 +49,15 @@
         .logo {
             display: flex;
             align-items: center;
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #22c55e;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #059669;
+            letter-spacing: -0.025em;
         }
 
         .logo i {
-            margin-right: 10px;
-            font-size: 2rem;
+            margin-right: 8px;
+            font-size: 1.75rem;
         }
 
         .nav-links {
@@ -63,57 +68,61 @@
 
         .nav-links a {
             text-decoration: none;
-            color: #2d5016;
+            color: #374151;
             font-weight: 500;
-            transition: color 0.3s;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+            padding: 0.5rem 0;
         }
 
         .nav-links a:hover {
-            color: #22c55e;
+            color: #059669;
         }
 
         /* Hero Section */
         .hero {
             text-align: center;
-            padding: 4rem 0;
-            background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+            padding: 6rem 0 4rem;
+            background: #ffffff;
+            border-bottom: 1px solid #f3f4f6;
         }
 
         .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #111827;
+            letter-spacing: -0.025em;
+            line-height: 1.1;
         }
 
         .hero p {
-            font-size: 1.2rem;
+            font-size: 1.125rem;
             color: #6b7280;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
+            font-weight: 400;
         }
 
         .cta-button {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
+            background: #059669;
             color: white;
             padding: 1rem 2rem;
             border: none;
-            border-radius: 50px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: all 0.2s;
             text-decoration: none;
             display: inline-block;
+            letter-spacing: -0.025em;
         }
 
         .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(34, 197, 94, 0.3);
+            background: #047857;
+            transform: translateY(-1px);
         }
 
         /* Onboarding Flow */
@@ -124,19 +133,22 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.6);
             z-index: 2000;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(4px);
         }
 
         .onboarding-content {
-            background: white;
-            border-radius: 20px;
+            background: #ffffff;
             padding: 3rem;
-            max-width: 600px;
-            text-align: center;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
             position: relative;
+            border: 1px solid #e5e7eb;
         }
 
         .onboarding-step {
@@ -148,41 +160,99 @@
         }
 
         .onboarding h2 {
-            color: #22c55e;
-            margin-bottom: 1rem;
+            color: #111827;
+            margin-bottom: 1.5rem;
             font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
         }
 
         .onboarding p {
             color: #6b7280;
             margin-bottom: 2rem;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .onboarding-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        .feature-card h3 {
             font-size: 1.1rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin: 0;
         }
 
         .onboarding-buttons {
             display: flex;
             gap: 1rem;
             justify-content: center;
+            margin-top: 2rem;
         }
 
         .btn-primary {
-            background: #22c55e;
+            background: #059669;
             color: white;
-            padding: 0.8rem 1.5rem;
+            padding: 0.875rem 1.5rem;
             border: none;
-            border-radius: 10px;
-            cursor: pointer;
             font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #047857;
         }
 
         .btn-secondary {
             background: #f3f4f6;
             color: #374151;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
+            padding: 0.875rem 1.5rem;
+            border: 1px solid #d1d5db;
             font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .progress-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            background: #d1d5db;
+            transition: background-color 0.2s;
+        }
+
+        .progress-dot.active {
+            background: #059669;
         }
 
         /* Main Content */
@@ -197,23 +267,25 @@
 
         /* Input Form */
         .input-section {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
+            background: #ffffff;
+            padding: 2.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(45, 80, 22, 0.1);
+            border: 1px solid #e5e7eb;
         }
 
         .section-title {
-            font-size: 1.8rem;
-            color: #22c55e;
-            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: #111827;
+            margin-bottom: 2rem;
             display: flex;
             align-items: center;
+            font-weight: 600;
+            letter-spacing: -0.025em;
         }
 
         .section-title i {
-            margin-right: 10px;
+            margin-right: 12px;
+            color: #059669;
         }
 
         .form-grid {
@@ -228,73 +300,77 @@
 
         .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             font-weight: 600;
-            color: #2d5016;
+            color: #374151;
+            font-size: 0.9rem;
+            letter-spacing: -0.025em;
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
+            padding: 0.875rem 1rem;
+            border: 1px solid #d1d5db;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+            background: #ffffff;
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #22c55e;
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
         }
 
         /* Visual Selection Cards */
         .selection-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 1rem;
             margin-top: 1rem;
         }
 
         .selection-card {
-            background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 15px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
             padding: 1.5rem;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             position: relative;
-            overflow: hidden;
         }
 
         .selection-card:hover {
-            border-color: #22c55e;
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(34, 197, 94, 0.2);
+            border-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .selection-card.selected {
-            border-color: #22c55e;
-            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-color: #059669;
+            background: #f0fdf4;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
         }
 
         .selection-card i {
-            font-size: 3rem;
-            color: #22c55e;
+            font-size: 2rem;
+            color: #059669;
             margin-bottom: 1rem;
         }
 
         .selection-card h3 {
-            font-size: 1.1rem;
+            font-size: 1rem;
             margin-bottom: 0.5rem;
-            color: #2d5016;
+            color: #111827;
+            font-weight: 600;
         }
 
         .selection-card p {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: #6b7280;
+            margin: 0;
         }
 
         /* Weather Info */
@@ -833,35 +909,95 @@
     <!-- Onboarding Flow -->
     <div class="onboarding" id="onboarding">
         <div class="onboarding-content">
+            <div class="progress-indicator">
+                <div class="progress-dot active" id="dot1"></div>
+                <div class="progress-dot" id="dot2"></div>
+                <div class="progress-dot" id="dot3"></div>
+            </div>
+
             <!-- Step 1: Welcome -->
             <div class="onboarding-step active" id="step1">
-                <h2>Welcome to HarvestLink! 🌾</h2>
-                <p>We're here to help you maximize your crop value with AI-powered insights. Let's get you started!</p>
+                <h2>Welcome to HarvestLink</h2>
+                <p>Transform your farming with intelligent crop analysis. Get precise loss predictions, market insights, and buyer connections to maximize your harvest value.</p>
+                
+                <div class="onboarding-features">
+                    <div class="feature-card">
+                        <h3>Loss Prediction</h3>
+                        <p>AI-powered analysis to prevent crop losses before they happen</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Market Intelligence</h3>
+                        <p>Real-time price forecasting and optimal selling timing</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Buyer Matching</h3>
+                        <p>Connect with verified buyers offering competitive prices</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Weather Integration</h3>
+                        <p>Automatic weather data for accurate recommendations</p>
+                    </div>
+                </div>
+
                 <div class="onboarding-buttons">
-                    <button class="btn-primary" onclick="nextStep()">Let's Begin</button>
+                    <button class="btn-primary" onclick="nextStep()">Get Started</button>
                 </div>
             </div>
 
             <!-- Step 2: How it works -->
             <div class="onboarding-step" id="step2">
-                <h2>How HarvestLink Works 🤖</h2>
-                <p>Simply tell us about your crop, and our AI will analyze:</p>
-                <ul style="text-align: left; margin: 2rem 0;">
-                    <li>📊 Loss predictions and prevention</li>
-                    <li>💰 Market prices and timing</li>
-                    <li>🤝 Buyer matching</li>
-                    <li>🌤️ Weather-based recommendations</li>
-                </ul>
+                <h2>How It Works</h2>
+                <p>Our system combines advanced AI with real-world farming data to provide actionable insights:</p>
+                
+                <div class="onboarding-features">
+                    <div class="feature-card">
+                        <h3>1. Input Your Crop Data</h3>
+                        <p>Select crop type, quantity, location, and harvest timing</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>2. AI Analysis</h3>
+                        <p>Advanced algorithms analyze weather, market, and storage conditions</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>3. Get Recommendations</h3>
+                        <p>Receive specific actions to minimize losses and maximize profits</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>4. Connect with Buyers</h3>
+                        <p>Access verified buyers ready to purchase your crop</p>
+                    </div>
+                </div>
+
                 <div class="onboarding-buttons">
                     <button class="btn-secondary" onclick="prevStep()">Back</button>
-                    <button class="btn-primary" onclick="nextStep()">Got it!</button>
+                    <button class="btn-primary" onclick="nextStep()">Continue</button>
                 </div>
             </div>
 
             <!-- Step 3: Ready to start -->
             <div class="onboarding-step" id="step3">
-                <h2>Ready to Analyze Your Crop! 🚀</h2>
-                <p>We'll guide you through each step. Just provide the essential information about your crop.</p>
+                <h2>Ready to Begin</h2>
+                <p>You're all set! Start by analyzing your first crop. The process is simple and takes less than 2 minutes.</p>
+                
+                <div class="onboarding-features">
+                    <div class="feature-card">
+                        <h3>Save Your Analysis</h3>
+                        <p>All your crop analyses are automatically saved for future reference</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Multiple Crops</h3>
+                        <p>Analyze as many different crops as you have</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>AI Assistant</h3>
+                        <p>Get personalized advice through our intelligent chatbot</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Regular Updates</h3>
+                        <p>Receive updated recommendations as conditions change</p>
+                    </div>
+                </div>
+
                 <div class="onboarding-buttons">
                     <button class="btn-secondary" onclick="prevStep()">Back</button>
                     <button class="btn-primary" onclick="completeOnboarding()">Start Analysis</button>
@@ -1183,14 +1319,18 @@
 
         function nextStep() {
             document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`dot${currentStep}`).classList.remove('active');
             currentStep++;
             document.getElementById(`step${currentStep}`).classList.add('active');
+            document.getElementById(`dot${currentStep}`).classList.add('active');
         }
 
         function prevStep() {
             document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`dot${currentStep}`).classList.remove('active');
             currentStep--;
             document.getElementById(`step${currentStep}`).classList.add('active');
+            document.getElementById(`dot${currentStep}`).classList.add('active');
         }
 
         function completeOnboarding() {
