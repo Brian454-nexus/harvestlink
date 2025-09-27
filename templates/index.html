@@ -988,7 +988,7 @@
 
         /* Prevent Layout Shifts and Dancing Interface */
         .selection-card {
-            min-height: 120px;
+            min-height: 100px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -1062,6 +1062,7 @@
 
             .selection-card {
                 padding: 1rem;
+                min-height: 100px;
             }
 
             .crop-emoji {
@@ -1113,7 +1114,17 @@
             }
 
             .selection-cards {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .selection-card {
+                padding: 0.75rem;
+                min-height: 90px;
+            }
+
+            .crop-emoji {
+                font-size: 2rem;
             }
 
             .analysis-card {
