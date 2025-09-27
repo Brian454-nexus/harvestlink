@@ -885,36 +885,92 @@ def handle_whatsapp():
             data = request.get_json()
             print(f"WhatsApp webhook received: {data}")
             
-            if not data or 'entry' not in data:
-                return jsonify({'status': 'error', 'message': 'No entry data'}), 400
-            
-            # Extract message from Meta's webhook format
-            entry = data['entry'][0]
-            changes = entry['changes'][0]
-            value = changes['value']
-            
-            if 'messages' in value:
-                message = value['messages'][0]
-                phone_number = message['from']
-                message_text = message['text']['body']
+            # Check if it's Twilio WhatsApp format
+            if 'MessageSid' in data:
+                # Twilio WhatsApp format
+                phone_number = data['From'].replace('whatsapp:', '')
+                message_text = data['Body']
                 
-                print(f"WhatsApp message from {phone_number}: {message_text}")
+                print(f"Twilio WhatsApp message from {phone_number}: {message_text}")
                 
                 # Process the message using existing AI system
                 response = process_harvest_request(message_text, phone_number, 'whatsapp')
                 
-                # Send response back via WhatsApp API
-                send_whatsapp_message(phone_number, response)
+                # Send response back via Twilio WhatsApp
+                send_twilio_whatsapp_message(phone_number, response)
                 
                 return jsonify({'status': 'success'})
+            
+            # Check if it's Meta WhatsApp format
+            elif 'entry' in data:
+                # Meta WhatsApp format
+                entry = data['entry'][0]
+                changes = entry['changes'][0]
+                value = changes['value']
+                
+                if 'messages' in value:
+                    message = value['messages'][0]
+                    phone_number = message['from']
+                    message_text = message['text']['body']
+                    
+                    print(f"Meta WhatsApp message from {phone_number}: {message_text}")
+                    
+                    # Process the message using existing AI system
+                    response = process_harvest_request(message_text, phone_number, 'whatsapp')
+                    
+                    # Send response back via Meta WhatsApp API
+                    send_meta_whatsapp_message(phone_number, response)
+                    
+                    return jsonify({'status': 'success'})
+                else:
+                    return jsonify({'status': 'success', 'message': 'No message to process'})
             else:
-                return jsonify({'status': 'success', 'message': 'No message to process'})
+                return jsonify({'status': 'error', 'message': 'Unknown webhook format'}), 400
                 
         except Exception as e:
             print(f"WhatsApp webhook error: {e}")
             return jsonify({'status': 'error', 'message': str(e)}), 500
 
-def send_whatsapp_message(to_number, message):
+def send_twilio_whatsapp_message(to_number, message):
+    """Send WhatsApp message via Twilio API"""
+    try:
+        # Twilio WhatsApp configuration
+        account_sid = os.getenv('TWILIO_ACCOUNT_SID')
+        auth_token = os.getenv('TWILIO_AUTH_TOKEN')
+        whatsapp_from = os.getenv('TWILIO_WHATSAPP_NUMBER', 'whatsapp:+14155238886')
+        
+        if not account_sid or not auth_token:
+            print("Twilio credentials not configured. Logging response instead:")
+            print(f"WhatsApp response to {to_number}: {message}")
+            return True
+        
+        # Format phone number for WhatsApp
+        if not to_number.startswith('whatsapp:'):
+            to_number = f"whatsapp:{to_number}"
+        
+        # Send via Twilio API
+        url = f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json"
+        
+        data = {
+            'To': to_number,
+            'From': whatsapp_from,
+            'Body': message
+        }
+        
+        response = requests.post(url, data=data, auth=(account_sid, auth_token))
+        
+        if response.status_code == 201:
+            print(f"Twilio WhatsApp message sent successfully to {to_number}")
+            return True
+        else:
+            print(f"Twilio WhatsApp send failed: {response.status_code} - {response.text}")
+            return False
+            
+    except Exception as e:
+        print(f"Twilio WhatsApp send error: {e}")
+        return False
+
+def send_meta_whatsapp_message(to_number, message):
     """Send WhatsApp message via Meta Business API"""
     try:
         # Meta WhatsApp Business API configuration
@@ -922,7 +978,7 @@ def send_whatsapp_message(to_number, message):
         access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
         
         if not phone_number_id or not access_token:
-            print("WhatsApp credentials not configured. Logging response instead:")
+            print("Meta WhatsApp credentials not configured. Logging response instead:")
             print(f"WhatsApp response to {to_number}: {message}")
             return True
         
@@ -944,14 +1000,14 @@ def send_whatsapp_message(to_number, message):
         response = requests.post(url, json=whatsapp_message, headers=headers)
         
         if response.status_code == 200:
-            print(f"WhatsApp message sent successfully to {to_number}")
+            print(f"Meta WhatsApp message sent successfully to {to_number}")
             return True
         else:
-            print(f"WhatsApp send failed: {response.status_code} - {response.text}")
+            print(f"Meta WhatsApp send failed: {response.status_code} - {response.text}")
             return False
             
     except Exception as e:
-        print(f"WhatsApp send error: {e}")
+        print(f"Meta WhatsApp send error: {e}")
         return False
 
 if __name__ == '__main__':
