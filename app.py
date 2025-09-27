@@ -865,39 +865,91 @@ def test_endpoint():
     else:
         return "Test endpoint working! Send POST request to test webhook."
 
-@app.route('/whatsapp', methods=['POST'])
+@app.route('/whatsapp', methods=['GET', 'POST'])
 def handle_whatsapp():
     """Handle WhatsApp messages via webhook"""
-    try:
-        # Get WhatsApp message data
-        data = request.get_json()
+    if request.method == 'GET':
+        # WhatsApp webhook verification
+        verify_token = request.args.get('hub.verify_token')
+        challenge = request.args.get('hub.challenge')
         
-        if not data or 'messages' not in data:
-            return jsonify({'status': 'error', 'message': 'No message data'}), 400
-        
-        message = data['messages'][0]
-        phone_number = message['from']
-        message_text = message['text']['body']
-        
-        # Process the message using existing AI system
-        response = process_harvest_request(message_text, phone_number, 'whatsapp')
-        
-        # Send response back via WhatsApp API
-        send_whatsapp_message(phone_number, response)
-        
-        return jsonify({'status': 'success'})
-        
-    except Exception as e:
-        print(f"WhatsApp webhook error: {e}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        if verify_token == 'harvestlink_verify_123':
+            print("WhatsApp webhook verified successfully!")
+            return challenge
+        else:
+            return 'Verification failed', 403
+    
+    elif request.method == 'POST':
+        try:
+            # Get WhatsApp message data
+            data = request.get_json()
+            print(f"WhatsApp webhook received: {data}")
+            
+            if not data or 'entry' not in data:
+                return jsonify({'status': 'error', 'message': 'No entry data'}), 400
+            
+            # Extract message from Meta's webhook format
+            entry = data['entry'][0]
+            changes = entry['changes'][0]
+            value = changes['value']
+            
+            if 'messages' in value:
+                message = value['messages'][0]
+                phone_number = message['from']
+                message_text = message['text']['body']
+                
+                print(f"WhatsApp message from {phone_number}: {message_text}")
+                
+                # Process the message using existing AI system
+                response = process_harvest_request(message_text, phone_number, 'whatsapp')
+                
+                # Send response back via WhatsApp API
+                send_whatsapp_message(phone_number, response)
+                
+                return jsonify({'status': 'success'})
+            else:
+                return jsonify({'status': 'success', 'message': 'No message to process'})
+                
+        except Exception as e:
+            print(f"WhatsApp webhook error: {e}")
+            return jsonify({'status': 'error', 'message': str(e)}), 500
 
 def send_whatsapp_message(to_number, message):
-    """Send WhatsApp message via API"""
+    """Send WhatsApp message via Meta Business API"""
     try:
-        # This would integrate with WhatsApp Business API
-        # For now, we'll log the response
-        print(f"WhatsApp response to {to_number}: {message}")
-        return True
+        # Meta WhatsApp Business API configuration
+        phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
+        access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
+        
+        if not phone_number_id or not access_token:
+            print("WhatsApp credentials not configured. Logging response instead:")
+            print(f"WhatsApp response to {to_number}: {message}")
+            return True
+        
+        # Format message for WhatsApp
+        whatsapp_message = {
+            "messaging_product": "whatsapp",
+            "to": to_number,
+            "type": "text",
+            "text": {"body": message}
+        }
+        
+        # Send via Meta API
+        url = f"https://graph.facebook.com/v18.0/{phone_number_id}/messages"
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json"
+        }
+        
+        response = requests.post(url, json=whatsapp_message, headers=headers)
+        
+        if response.status_code == 200:
+            print(f"WhatsApp message sent successfully to {to_number}")
+            return True
+        else:
+            print(f"WhatsApp send failed: {response.status_code} - {response.text}")
+            return False
+            
     except Exception as e:
         print(f"WhatsApp send error: {e}")
         return False
