@@ -835,6 +835,75 @@
             font-weight: bold;
         }
 
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #059669;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .analyze-button.loading {
+            background: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .analyze-button.loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-left: 8px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Chatbot Improvements */
+        .chat-message .message-content {
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+
+        .chat-message.bot-message .message-content {
+            background: #f9fafb;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0;
+        }
+
+        .chat-input-container {
+            position: relative;
+        }
+
+        .chat-input-container.loading::after {
+            content: '';
+            position: absolute;
+            right: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            border: 2px solid #d1d5db;
+            border-top: 2px solid #059669;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .hero h1 {
@@ -1556,10 +1625,9 @@
             addChatMessage(message, 'user');
             input.value = '';
             
-            // Disable send button
-            const sendButton = document.getElementById('sendMessage');
-            sendButton.disabled = true;
-            sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            // Show loading state
+            const chatContainer = document.querySelector('.chat-input-container');
+            chatContainer.classList.add('loading');
             
             try {
                 const response = await fetch('/api/chat', {
@@ -1588,8 +1656,8 @@
                 console.error('Chat error:', error);
                 addChatMessage('Sorry, I\'m having technical difficulties. Please try again later.', 'bot');
             } finally {
-                sendButton.disabled = false;
-                sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                // Remove loading state
+                chatContainer.classList.remove('loading');
             }
         }
         

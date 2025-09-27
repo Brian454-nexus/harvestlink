@@ -405,16 +405,12 @@ def analyze_harvest():
             sell_timing = "Sell This Week - Stable Prices"
             sell_reason = f"Prices are stable - good time to sell without waiting"
         
-        # Get GPT-4o-mini analysis (async for speed)
-        gpt_conditions_analysis = hybrid_ai.analyze_crop_conditions(f"Crop: {crop_type}, Location: {location}, Weather: {weather_data['condition']}, Temperature: {weather_data['temperature']}°C, Humidity: {weather_data['humidity']}%")
-        gpt_recommendations = hybrid_ai.generate_smart_recommendations(crop_type, quantity, location, storage_method, f"Weather: {weather_data['condition']}, {weather_data['temperature']}°C")
-        gpt_market_intelligence = hybrid_ai.analyze_market_intelligence(crop_type, location, quantity)
+        # REMOVED SLOW GPT CALLS - Analysis is now instant!
         
         # Loss Analysis
         loss_analysis = {
             'predicted_loss_percentage': round(loss_percentage, 1),
             'confidence_score': round(confidence_score, 1),
-            'gpt_conditions_analysis': gpt_conditions_analysis,
             'risk_factors': [
                 f"Weather in {location}: {weather_data['condition']} with {weather_data['humidity']}% humidity",
                 f"Storage method '{storage_method}' affects preservation",
@@ -426,7 +422,6 @@ def analyze_harvest():
                 f"Monitor for pests and mold regularly"
             ],
             'estimated_loss_value': round(quantity * (loss_percentage / 100) * base_price, 2),
-            'gpt_recommendations': gpt_recommendations,
             'urgency_level': urgency_level,
             'urgency_reason': urgency_reason
         }
@@ -447,8 +442,7 @@ def analyze_harvest():
             'optimal_sell_timing': sell_timing,
             'sell_reason': sell_reason,
             'potential_revenue': round(quantity * base_price, 2),
-            'potential_revenue_optimal': round(quantity * (base_price + abs(price_change)), 2),
-            'gpt_market_intelligence': gpt_market_intelligence
+            'potential_revenue_optimal': round(quantity * (base_price + abs(price_change)), 2)
         }
         
         # Buyer Matching
@@ -518,7 +512,7 @@ def analyze_harvest():
 
 @app.route('/api/chat', methods=['POST'])
 def chat_with_ai():
-    """Chatbot endpoint for interactive AI assistance"""
+    """Chatbot endpoint for interactive AI assistance - OPTIMIZED FOR SPEED"""
     try:
         data = request.get_json()
         message = data.get('message', '')
@@ -527,47 +521,46 @@ def chat_with_ai():
         if not message:
             return jsonify({'error': 'Message is required'}), 400
         
-        # Create context-aware prompt
+        # Create context-aware prompt - OPTIMIZED
         crop = context.get('crop', 'maize')
         location = context.get('location', 'Nairobi')
         quantity = context.get('quantity', '100')
         
-        prompt = f"""
-        You are HarvestLink AI, a helpful agricultural assistant for smallholder farmers in Kenya.
+        # SHORTER, MORE FOCUSED PROMPT FOR SPEED
+        prompt = f"""You are HarvestLink AI, a helpful agricultural assistant for smallholder farmers in Kenya.
+
+Current context: {crop} crop, {location}, {quantity}kg
+Question: {message}
+
+Provide a helpful, actionable response that:
+1. Is direct and easy to understand
+2. Gives specific steps the farmer can take
+3. Uses simple language
+4. Is encouraging and supportive
+5. Keeps response under 100 words
+6. Focuses on practical farming advice
+
+Format your response with clear sections if needed. Do NOT start with "Certainly!" or "Here is..." - just give direct advice."""
         
-        Current farmer context:
-        - Crop: {crop}
-        - Location: {location}
-        - Quantity: {quantity} kg
-        
-        Farmer's question: {message}
-        
-        Please provide a helpful, actionable response that:
-        1. Is direct and easy to understand
-        2. Gives specific steps the farmer can take
-        3. Uses simple language (avoid technical jargon)
-        4. Is encouraging and supportive
-        5. Keeps response under 150 words
-        6. Focuses on practical farming advice
-        
-        Do NOT start with phrases like "Certainly!" or "Here is a comprehensive..." - just give direct, helpful advice.
-        """
-        
+        # FASTER API CALL - Reduced tokens and temperature
         response = openai.ChatCompletion.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a helpful agricultural assistant for smallholder farmers in Kenya. Give direct, actionable advice in simple language."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=200,
-            temperature=0.7
+            max_tokens=150,  # Reduced from 200
+            temperature=0.5   # Reduced from 0.7
         )
         
         ai_response = response.choices[0].message.content.strip()
         
+        # FORMAT THE RESPONSE BETTER
+        formatted_response = format_ai_response(ai_response)
+        
         return jsonify({
             'status': 'success',
-            'response': ai_response
+            'response': formatted_response
         })
         
     except Exception as e:
@@ -576,6 +569,41 @@ def chat_with_ai():
             'status': 'error',
             'response': 'Sorry, I\'m having trouble right now. Please try again in a moment.'
         }), 500
+
+def format_ai_response(response):
+    """Format AI response for better readability"""
+    # Remove common AI prefixes
+    prefixes_to_remove = [
+        "Certainly! Here is a comprehensive",
+        "Here is a comprehensive",
+        "Certainly!",
+        "Here's",
+        "Here is",
+        "Based on your question",
+        "To answer your question"
+    ]
+    
+    for prefix in prefixes_to_remove:
+        if response.startswith(prefix):
+            response = response[len(prefix):].strip()
+            break
+    
+    # Add proper spacing and formatting
+    lines = response.split('\n')
+    formatted_lines = []
+    
+    for line in lines:
+        line = line.strip()
+        if line:
+            # If line starts with a number or bullet, add proper spacing
+            if line.startswith(('1.', '2.', '3.', '4.', '5.', '•', '-', '*')):
+                formatted_lines.append(f"\n{line}")
+            elif line.endswith(':'):
+                formatted_lines.append(f"\n{line}")
+            else:
+                formatted_lines.append(line)
+    
+    return '\n'.join(formatted_lines).strip()
 
 @app.route('/sms', methods=['POST'])
 def handle_sms():
