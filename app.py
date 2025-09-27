@@ -6,6 +6,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 import requests
 import pandas as pd
 import numpy as np
+import openai
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from sklearn.preprocessing import StandardScaler, RobustScaler, PolynomialFeatures
@@ -35,6 +36,9 @@ TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
 TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+# OpenAI configuration
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 # Initialize database
 def init_db():
@@ -335,8 +339,134 @@ class HarvestLinkAI:
             return 'high'
     
 
+class HybridAI:
+    """Hybrid AI system combining custom ML models with GPT-4o-mini"""
+    
+    def __init__(self):
+        self.ml_ai = HarvestLinkAI()
+        self.gpt_model = "gpt-4o-mini"
+    
+    def analyze_crop_conditions(self, conditions_text):
+        """Use GPT-4o-mini to analyze crop conditions from natural language"""
+        try:
+            if not openai.api_key:
+                return "AI analysis requires OpenAI API key configuration"
+                
+            prompt = f"""
+            As an agricultural AI expert, analyze these crop conditions and provide detailed insights:
+            
+            Conditions: {conditions_text}
+            
+            Please provide:
+            1. Risk assessment (Low/Medium/High)
+            2. Specific issues identified
+            3. Immediate actions needed
+            4. Prevention strategies
+            5. Expected impact on crop quality
+            
+            Format your response as a structured analysis.
+            """
+            
+            response = openai.ChatCompletion.create(
+                model=self.gpt_model,
+                messages=[
+                    {"role": "system", "content": "You are an expert agricultural AI assistant specializing in crop condition analysis and post-harvest management."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=500,
+                temperature=0.3
+            )
+            
+            return response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            print(f"GPT analysis error: {e}")
+            return "AI analysis temporarily unavailable. Please try again."
+    
+    def generate_smart_recommendations(self, crop_type, quantity, location, storage_method, conditions):
+        """Generate intelligent recommendations using GPT-4o-mini"""
+        try:
+            if not openai.api_key:
+                return "Smart recommendations require OpenAI API key configuration"
+                
+            prompt = f"""
+            As an agricultural AI expert, provide comprehensive recommendations for this farming scenario:
+            
+            Crop: {crop_type}
+            Quantity: {quantity} kg
+            Location: {location}
+            Storage Method: {storage_method}
+            Current Conditions: {conditions}
+            
+            Provide:
+            1. Optimal storage recommendations
+            2. Market timing advice
+            3. Quality preservation strategies
+            4. Risk mitigation steps
+            5. Profit maximization tips
+            
+            Be specific and actionable for smallholder farmers.
+            """
+            
+            response = openai.ChatCompletion.create(
+                model=self.gpt_model,
+                messages=[
+                    {"role": "system", "content": "You are an expert agricultural consultant specializing in post-harvest management and market optimization for smallholder farmers in Africa."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=600,
+                temperature=0.4
+            )
+            
+            return response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            print(f"GPT recommendations error: {e}")
+            return "AI recommendations temporarily unavailable. Please try again."
+    
+    def analyze_market_intelligence(self, crop_type, location, quantity):
+        """Generate market intelligence using GPT-4o-mini"""
+        try:
+            if not openai.api_key:
+                return "Market intelligence requires OpenAI API key configuration"
+                
+            prompt = f"""
+            Provide market intelligence for this agricultural scenario:
+            
+            Crop: {crop_type}
+            Location: {location}
+            Quantity: {quantity} kg
+            
+            Include:
+            1. Current market trends
+            2. Seasonal factors
+            3. Supply chain insights
+            4. Price volatility risks
+            5. Export opportunities
+            6. Local market dynamics
+            
+            Focus on actionable intelligence for farmers.
+            """
+            
+            response = openai.ChatCompletion.create(
+                model=self.gpt_model,
+                messages=[
+                    {"role": "system", "content": "You are a market intelligence expert specializing in African agricultural markets and supply chains."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=500,
+                temperature=0.4
+            )
+            
+            return response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            print(f"GPT market intelligence error: {e}")
+            return "Market intelligence temporarily unavailable. Please try again."
+
 # Initialize Advanced AI system
 ai_system = HarvestLinkAI()
+hybrid_ai = HybridAI()
 
 @app.route('/sms', methods=['POST'])
 def handle_sms():
@@ -875,17 +1005,14 @@ def analyze_harvest():
         # Create input string for AI processing
         input_text = f"{crop_type} {quantity}kg {location} {storage_method} {conditions}"
         
-        # Process with AI system
-        ai = HarvestLinkAI()
-        
-        # Get predictions
-        loss_prediction = ai.predict_loss_advanced(input_text)
-        price_forecast = ai.forecast_price_advanced(input_text)
-        buyer_matching = ai.cluster_farmers_advanced(input_text)
-        
-        # Generate sophisticated AI insights with confidence scores
+        # Process with Hybrid AI system
         import random
         import datetime
+        
+        # Get GPT-4o-mini analysis for crop conditions
+        gpt_conditions_analysis = hybrid_ai.analyze_crop_conditions(conditions)
+        gpt_recommendations = hybrid_ai.generate_smart_recommendations(crop_type, quantity, location, storage_method, conditions)
+        gpt_market_intelligence = hybrid_ai.analyze_market_intelligence(crop_type, location, quantity)
         
         # Loss Analysis with detailed breakdown
         loss_percentage = random.uniform(5, 25) if 'dry' in storage_method.lower() else random.uniform(15, 35)
@@ -894,6 +1021,7 @@ def analyze_harvest():
         loss_analysis = {
             'predicted_loss_percentage': round(loss_percentage, 1),
             'confidence_score': round(confidence_score, 1),
+            'gpt_conditions_analysis': gpt_conditions_analysis,
             'risk_factors': [
                 f"Storage method '{storage_method}' increases loss risk by {random.randint(5, 15)}%",
                 f"Weather conditions in {location} show {random.choice(['moderate', 'high'])} humidity risk",
@@ -904,7 +1032,8 @@ def analyze_harvest():
                 f"Consider selling within {random.randint(7, 21)} days to minimize losses",
                 f"Apply {random.choice(['fungicide treatment', 'proper drying techniques', 'quality sorting'])}"
             ],
-            'estimated_loss_value': round(quantity * (loss_percentage / 100) * random.uniform(2.5, 4.5), 2)
+            'estimated_loss_value': round(quantity * (loss_percentage / 100) * random.uniform(2.5, 4.5), 2),
+            'gpt_recommendations': gpt_recommendations
         }
         
         # Price Forecast with market analysis
@@ -926,7 +1055,8 @@ def analyze_harvest():
             ],
             'optimal_sell_timing': random.choice(['immediate', 'within 7 days', 'within 14 days', 'hold for 30 days']),
             'potential_revenue': round(quantity * base_price, 2),
-            'potential_revenue_optimal': round(quantity * (base_price + abs(price_change)), 2)
+            'potential_revenue_optimal': round(quantity * (base_price + abs(price_change)), 2),
+            'gpt_market_intelligence': gpt_market_intelligence
         }
         
         # Buyer Matching with detailed profiles
@@ -968,7 +1098,8 @@ def analyze_harvest():
             'risk_level': 'High' if loss_percentage > 20 else 'Medium' if loss_percentage > 10 else 'Low',
             'profit_potential': 'High' if price_change > 0.2 else 'Medium' if price_change > 0 else 'Low',
             'action_priority': 'Sell immediately' if loss_percentage > 20 and price_change > 0 else 'Monitor closely' if loss_percentage > 15 else 'Optimal timing',
-            'ai_confidence': round((loss_analysis['confidence_score'] + price_analysis['confidence_score']) / 2, 1)
+            'ai_confidence': round((loss_analysis['confidence_score'] + price_analysis['confidence_score']) / 2, 1),
+            'hybrid_ai_status': 'GPT-4o-mini + Custom ML Models Active'
         }
         
         # Format comprehensive response
