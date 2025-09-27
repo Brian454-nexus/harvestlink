@@ -389,7 +389,11 @@ def analyze_harvest():
             urgency_reason = f"Your {crop_type} is in good condition with only {loss_percentage:.1f}% expected loss"
         
         # Quick price analysis
-        base_prices = {'maize': 3.2, 'wheat': 4.1, 'rice': 2.8, 'tomatoes': 8.2, 'beans': 5.5, 'potatoes': 2.1, 'onions': 3.8, 'cassava': 1.8}
+        base_prices = {
+            'maize': 3.2, 'wheat': 4.1, 'rice': 2.8, 'tomatoes': 8.2, 
+            'beans': 5.5, 'potatoes': 2.1, 'onions': 3.8, 'cassava': 1.8,
+            'sorghum': 2.5, 'millet': 2.3, 'groundnuts': 6.8
+        }
         base_price = base_prices.get(crop_type.lower(), 3.0)
         price_trend = random.choice(['increasing', 'decreasing', 'stable'])
         price_change = random.uniform(-0.3, 0.4)
