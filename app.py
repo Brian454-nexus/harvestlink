@@ -1,7 +1,9 @@
 import os
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
+import requests
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
@@ -26,6 +28,7 @@ warnings.filterwarnings('ignore')
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 # Twilio configuration
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
@@ -861,6 +864,43 @@ def test_endpoint():
         return f"POST received! Data: {request.form.to_dict()}"
     else:
         return "Test endpoint working! Send POST request to test webhook."
+
+@app.route('/whatsapp', methods=['POST'])
+def handle_whatsapp():
+    """Handle WhatsApp messages via webhook"""
+    try:
+        # Get WhatsApp message data
+        data = request.get_json()
+        
+        if not data or 'messages' not in data:
+            return jsonify({'status': 'error', 'message': 'No message data'}), 400
+        
+        message = data['messages'][0]
+        phone_number = message['from']
+        message_text = message['text']['body']
+        
+        # Process the message using existing AI system
+        response = process_harvest_request(message_text, phone_number, 'whatsapp')
+        
+        # Send response back via WhatsApp API
+        send_whatsapp_message(phone_number, response)
+        
+        return jsonify({'status': 'success'})
+        
+    except Exception as e:
+        print(f"WhatsApp webhook error: {e}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+def send_whatsapp_message(to_number, message):
+    """Send WhatsApp message via API"""
+    try:
+        # This would integrate with WhatsApp Business API
+        # For now, we'll log the response
+        print(f"WhatsApp response to {to_number}: {message}")
+        return True
+    except Exception as e:
+        print(f"WhatsApp send error: {e}")
+        return False
 
 if __name__ == '__main__':
     init_db()
