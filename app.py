@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
@@ -850,13 +850,7 @@ def format_buyer_matches(buyers):
 
 @app.route('/')
 def home():
-    return '''
-    <h1>🌾 HarvestLink AI System</h1>
-    <p>Advanced AI-powered agricultural solution for smallholder farmers</p>
-    <p>SMS: Send crop details to get AI predictions and buyer matching</p>
-    <p>USSD: Dial *384*12345# for guided interaction</p>
-    <p>Webhook Test: <a href="/test">Test Endpoint</a></p>
-    '''
+    return render_template('index.html')
 
 @app.route('/test', methods=['GET', 'POST'])
 def test_endpoint():
@@ -864,6 +858,50 @@ def test_endpoint():
         return f"POST received! Data: {request.form.to_dict()}"
     else:
         return "Test endpoint working! Send POST request to test webhook."
+
+@app.route('/api/analyze', methods=['POST'])
+def analyze_harvest():
+    """API endpoint for web interface to analyze harvest data"""
+    try:
+        data = request.get_json()
+        
+        # Extract form data
+        crop_type = data.get('cropType', '')
+        quantity = data.get('quantity', '')
+        location = data.get('location', '')
+        storage_method = data.get('storageMethod', '')
+        conditions = data.get('conditions', '')
+        
+        # Create input string for AI processing
+        input_text = f"{crop_type} {quantity}kg {location} {storage_method} {conditions}"
+        
+        # Process with AI system
+        ai = HarvestLinkAI()
+        
+        # Get predictions
+        loss_prediction = ai.predict_loss_advanced(input_text)
+        price_forecast = ai.forecast_price_advanced(input_text)
+        buyer_matching = ai.cluster_farmers_advanced(input_text)
+        
+        # Format responses for web interface
+        response = {
+            'loss_prediction': loss_prediction,
+            'price_forecast': price_forecast,
+            'buyer_matching': buyer_matching,
+            'status': 'success'
+        }
+        
+        return jsonify(response)
+        
+    except Exception as e:
+        print(f"API Error: {e}")
+        return jsonify({
+            'loss_prediction': 'Error analyzing loss prediction',
+            'price_forecast': 'Error forecasting prices',
+            'buyer_matching': 'Error finding buyers',
+            'status': 'error',
+            'message': str(e)
+        }), 500
 
 @app.route('/whatsapp', methods=['GET', 'POST'])
 def handle_whatsapp():
