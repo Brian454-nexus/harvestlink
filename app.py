@@ -502,7 +502,8 @@ def analyze_harvest():
             'ai_summary': ai_summary,
             'weather_data': weather_data,
             'timestamp': datetime.datetime.now().isoformat(),
-            'status': 'success'
+            'status': 'success',
+            'analysis_id': int(datetime.datetime.now().timestamp() * 1000)  # Unique ID for saving
         }
         
         return jsonify(response)

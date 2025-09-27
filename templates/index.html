@@ -529,6 +529,143 @@
             cursor: not-allowed;
         }
 
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+        }
+
+        .action-btn.secondary {
+            background: white;
+            color: #22c55e;
+            border: 2px solid #22c55e;
+        }
+
+        .action-btn.secondary:hover {
+            background: #22c55e;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* History Modal */
+        .history-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .history-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .history-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #f3f4f6;
+            padding-bottom: 1rem;
+        }
+
+        .history-modal-header h3 {
+            color: #22c55e;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #dc2626;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .history-item {
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .history-item:hover {
+            border-color: #22c55e;
+            background: #f0fdf4;
+            transform: translateY(-2px);
+        }
+
+        .history-crop {
+            font-weight: 600;
+            color: #2d5016;
+            font-size: 1.1rem;
+        }
+
+        .history-location {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin: 0.25rem 0;
+        }
+
+        .history-date {
+            color: #9ca3af;
+            font-size: 0.8rem;
+        }
+
         /* Loading Animation */
         .loading {
             display: none;
@@ -861,6 +998,19 @@
 
             <!-- Results Section -->
             <div class="results-section" id="resultsSection">
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="action-btn primary" onclick="analyzeAnotherCrop()">
+                        <i class="fas fa-plus"></i> Analyze Another Crop
+                    </button>
+                    <button class="action-btn secondary" onclick="saveAnalysis()">
+                        <i class="fas fa-save"></i> Save This Analysis
+                    </button>
+                    <button class="action-btn secondary" onclick="viewConversationHistory()">
+                        <i class="fas fa-history"></i> View History
+                    </button>
+                </div>
+                
                 <div class="analysis-grid">
                     <!-- Loss Analysis Card -->
                     <div class="analysis-card fade-in">
@@ -1145,6 +1295,9 @@
         }
 
         function displayResults(data) {
+            // Store the analysis data for saving
+            window.lastAnalysisData = data;
+            
             // Loss Analysis
             document.getElementById('lossPercentage').textContent = `${data.loss_analysis.predicted_loss_percentage}%`;
             document.getElementById('confidence').textContent = `${data.loss_analysis.confidence_score}%`;
@@ -1185,16 +1338,6 @@
             const buyerRec = document.createElement('li');
             buyerRec.textContent = data.buyer_analysis.recommendation;
             buyerRecs.appendChild(buyerRec);
-
-            // AI Insights
-            document.getElementById('aiInsights').innerHTML = `
-                <p style="color: #166534; line-height: 1.6;">${data.loss_analysis.gpt_recommendations}</p>
-            `;
-
-            // Storage Advice
-            document.getElementById('storageAdvice').innerHTML = `
-                <p style="color: #166534; line-height: 1.6;">${data.price_analysis.gpt_market_intelligence}</p>
-            `;
 
             // Show results
             document.getElementById('resultsSection').classList.add('active');
@@ -1329,6 +1472,167 @@
             
             // Scroll to bottom
             chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Multiple Crop Analysis Functions
+        function analyzeAnotherCrop() {
+            // Reset form
+            document.getElementById('cropForm').reset();
+            document.querySelectorAll('.selection-card').forEach(card => card.classList.remove('selected'));
+            selectedCrop = null;
+            selectedHarvestDate = null;
+            
+            // Hide results
+            document.getElementById('resultsSection').classList.remove('active');
+            
+            // Scroll to form
+            document.getElementById('cropForm').scrollIntoView({ behavior: 'smooth' });
+            
+            // Show success message
+            showNotification('Form reset! You can now analyze another crop.', 'success');
+        }
+
+        function saveAnalysis() {
+            // Get the current analysis data from the last API response
+            if (!window.lastAnalysisData) {
+                showNotification('No analysis data to save. Please analyze a crop first.', 'error');
+                return;
+            }
+            
+            const currentAnalysis = {
+                id: window.lastAnalysisData.analysis_id || Date.now(),
+                timestamp: new Date().toISOString(),
+                crop: selectedCrop,
+                quantity: document.getElementById('quantity').value,
+                location: document.getElementById('location').value,
+                harvestDate: selectedHarvestDate,
+                results: window.lastAnalysisData
+            };
+            
+            // Save to localStorage
+            const savedAnalyses = JSON.parse(localStorage.getItem('harvestlink_saved_analyses') || '[]');
+            
+            // Check if this analysis already exists
+            const existingIndex = savedAnalyses.findIndex(a => a.id === currentAnalysis.id);
+            if (existingIndex !== -1) {
+                savedAnalyses[existingIndex] = currentAnalysis;
+            } else {
+                savedAnalyses.unshift(currentAnalysis);
+            }
+            
+            // Keep only last 20 analyses
+            if (savedAnalyses.length > 20) {
+                savedAnalyses.splice(20);
+            }
+            
+            localStorage.setItem('harvestlink_saved_analyses', JSON.stringify(savedAnalyses));
+            showNotification('Analysis saved successfully!', 'success');
+        }
+
+        function viewConversationHistory() {
+            const savedAnalyses = JSON.parse(localStorage.getItem('harvestlink_saved_analyses') || '[]');
+            
+            if (savedAnalyses.length === 0) {
+                showNotification('No saved analyses yet. Save your first analysis to see it here!', 'info');
+                return;
+            }
+            
+            // Create history modal
+            const modal = document.createElement('div');
+            modal.className = 'history-modal';
+            modal.innerHTML = `
+                <div class="history-modal-content">
+                    <div class="history-modal-header">
+                        <h3>Your Analysis History</h3>
+                        <button onclick="closeHistoryModal()" class="close-btn">&times;</button>
+                    </div>
+                    <div class="history-list">
+                        ${savedAnalyses.map(analysis => `
+                            <div class="history-item" onclick="loadAnalysis(${analysis.id})">
+                                <div class="history-crop">${analysis.crop} - ${analysis.quantity}kg</div>
+                                <div class="history-location">${analysis.location}</div>
+                                <div class="history-date">${new Date(analysis.timestamp).toLocaleDateString()}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        function closeHistoryModal() {
+            const modal = document.querySelector('.history-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function loadAnalysis(analysisId) {
+            const savedAnalyses = JSON.parse(localStorage.getItem('harvestlink_saved_analyses') || '[]');
+            const analysis = savedAnalyses.find(a => a.id === analysisId);
+            
+            if (analysis) {
+                // Load the analysis data
+                displayResults(analysis.results);
+                closeHistoryModal();
+                showNotification('Analysis loaded successfully!', 'success');
+            }
+        }
+
+        function getCurrentAnalysisData() {
+            // Capture the current analysis results from the DOM
+            return {
+                loss_analysis: {
+                    predicted_loss_percentage: document.getElementById('lossPercentage').textContent,
+                    confidence_score: document.getElementById('confidence').textContent,
+                    urgency_level: document.getElementById('riskLevel').textContent
+                },
+                price_analysis: {
+                    current_price_per_kg: document.getElementById('currentPrice').textContent,
+                    predicted_price_7_days: document.getElementById('forecastPrice').textContent,
+                    optimal_sell_timing: document.getElementById('sellTiming').textContent
+                },
+                buyer_analysis: {
+                    best_buyer: document.getElementById('bestBuyer').textContent,
+                    offered_price: document.getElementById('offeredPrice').textContent,
+                    buyer_contact: document.getElementById('buyerContact').textContent
+                }
+            };
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            // Add styles
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                border-radius: 10px;
+                color: white;
+                font-weight: 600;
+                z-index: 3000;
+                animation: slideIn 0.3s ease-out;
+            `;
+            
+            if (type === 'success') {
+                notification.style.background = '#22c55e';
+            } else if (type === 'error') {
+                notification.style.background = '#dc2626';
+            } else {
+                notification.style.background = '#3b82f6';
+            }
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
         }
     </script>
 </body>
