@@ -884,6 +884,8 @@ def handle_whatsapp():
             # Get WhatsApp message data
             data = request.get_json()
             print(f"WhatsApp webhook received: {data}")
+            print(f"Data type: {type(data)}")
+            print(f"Data keys: {list(data.keys()) if data else 'None'}")
             
             # Check if it's Twilio WhatsApp format
             if data and 'MessageSid' in data:
