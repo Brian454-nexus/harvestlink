@@ -377,11 +377,33 @@ def analyze_harvest():
         loss_percentage = min(35, max(5, (weather_risk + storage_risk + crop_age_risk) * 100 + random.uniform(-5, 5)))
         confidence_score = random.uniform(85, 95)
         
+        # Determine urgency level based on loss percentage
+        if loss_percentage > 20:
+            urgency_level = "High - Act Now!"
+            urgency_reason = f"Your {crop_type} is losing {loss_percentage:.1f}% due to high humidity ({weather_data['humidity']}%) and storage conditions"
+        elif loss_percentage > 10:
+            urgency_level = "Medium - Monitor Closely"
+            urgency_reason = f"Your {crop_type} has moderate risk of {loss_percentage:.1f}% loss from weather and storage factors"
+        else:
+            urgency_level = "Low - Good Condition"
+            urgency_reason = f"Your {crop_type} is in good condition with only {loss_percentage:.1f}% expected loss"
+        
         # Quick price analysis
-        base_prices = {'maize': 3.2, 'wheat': 4.1, 'rice': 2.8, 'tomatoes': 8.2}
+        base_prices = {'maize': 3.2, 'wheat': 4.1, 'rice': 2.8, 'tomatoes': 8.2, 'beans': 5.5, 'potatoes': 2.1, 'onions': 3.8, 'cassava': 1.8}
         base_price = base_prices.get(crop_type.lower(), 3.0)
         price_trend = random.choice(['increasing', 'decreasing', 'stable'])
         price_change = random.uniform(-0.3, 0.4)
+        
+        # Determine sell timing
+        if price_change > 0.2:
+            sell_timing = "Sell Next Week - Prices Rising!"
+            sell_reason = f"Prices are going up by {price_change:.2f} KES/kg - wait for better profit"
+        elif price_change < -0.1:
+            sell_timing = "Sell Today - Prices Dropping!"
+            sell_reason = f"Prices are falling by {abs(price_change):.2f} KES/kg - sell now to avoid losses"
+        else:
+            sell_timing = "Sell This Week - Stable Prices"
+            sell_reason = f"Prices are stable - good time to sell without waiting"
         
         # Get GPT-4o-mini analysis (async for speed)
         gpt_conditions_analysis = hybrid_ai.analyze_crop_conditions(f"Crop: {crop_type}, Location: {location}, Weather: {weather_data['condition']}, Temperature: {weather_data['temperature']}°C, Humidity: {weather_data['humidity']}%")
@@ -404,7 +426,9 @@ def analyze_harvest():
                 f"Monitor for pests and mold regularly"
             ],
             'estimated_loss_value': round(quantity * (loss_percentage / 100) * base_price, 2),
-            'gpt_recommendations': gpt_recommendations
+            'gpt_recommendations': gpt_recommendations,
+            'urgency_level': urgency_level,
+            'urgency_reason': urgency_reason
         }
         
         # Price Forecast
@@ -420,7 +444,8 @@ def analyze_harvest():
                 f"Weather conditions affecting supply chain",
                 f"Export market showing {random.choice(['positive', 'negative'])} trends"
             ],
-            'optimal_sell_timing': random.choice(['immediate', 'within 7 days', 'within 14 days', 'hold for 30 days']),
+            'optimal_sell_timing': sell_timing,
+            'sell_reason': sell_reason,
             'potential_revenue': round(quantity * base_price, 2),
             'potential_revenue_optimal': round(quantity * (base_price + abs(price_change)), 2),
             'gpt_market_intelligence': gpt_market_intelligence
@@ -488,6 +513,67 @@ def analyze_harvest():
             'error': 'AI analysis failed',
             'message': str(e),
             'status': 'error'
+        }), 500
+
+@app.route('/api/chat', methods=['POST'])
+def chat_with_ai():
+    """Chatbot endpoint for interactive AI assistance"""
+    try:
+        data = request.get_json()
+        message = data.get('message', '')
+        context = data.get('context', {})
+        
+        if not message:
+            return jsonify({'error': 'Message is required'}), 400
+        
+        # Create context-aware prompt
+        crop = context.get('crop', 'maize')
+        location = context.get('location', 'Nairobi')
+        quantity = context.get('quantity', '100')
+        
+        prompt = f"""
+        You are HarvestLink AI, a helpful agricultural assistant for smallholder farmers in Kenya.
+        
+        Current farmer context:
+        - Crop: {crop}
+        - Location: {location}
+        - Quantity: {quantity} kg
+        
+        Farmer's question: {message}
+        
+        Please provide a helpful, actionable response that:
+        1. Is direct and easy to understand
+        2. Gives specific steps the farmer can take
+        3. Uses simple language (avoid technical jargon)
+        4. Is encouraging and supportive
+        5. Keeps response under 150 words
+        6. Focuses on practical farming advice
+        
+        Do NOT start with phrases like "Certainly!" or "Here is a comprehensive..." - just give direct, helpful advice.
+        """
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a helpful agricultural assistant for smallholder farmers in Kenya. Give direct, actionable advice in simple language."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=200,
+            temperature=0.7
+        )
+        
+        ai_response = response.choices[0].message.content.strip()
+        
+        return jsonify({
+            'status': 'success',
+            'response': ai_response
+        })
+        
+    except Exception as e:
+        print(f"Chat error: {e}")
+        return jsonify({
+            'status': 'error',
+            'response': 'Sorry, I\'m having trouble right now. Please try again in a moment.'
         }), 500
 
 @app.route('/sms', methods=['POST'])

@@ -430,6 +430,105 @@
             font-weight: bold;
         }
 
+        /* Chatbot Styles */
+        .chatbot-section {
+            margin-top: 1rem;
+        }
+
+        .chatbot-header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .chatbot-header h4 {
+            color: #22c55e;
+            margin-bottom: 0.5rem;
+        }
+
+        .chatbot-header p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .chatbot-container {
+            background: #f9fafb;
+            border-radius: 15px;
+            padding: 1rem;
+            max-height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            max-height: 200px;
+        }
+
+        .chat-message {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            border-radius: 10px;
+            max-width: 85%;
+        }
+
+        .bot-message {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-left: 3px solid #22c55e;
+            margin-right: auto;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border-left: 3px solid #3b82f6;
+            margin-left: auto;
+        }
+
+        .message-content {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input:focus {
+            border-color: #22c55e;
+        }
+
+        .send-button {
+            background: #22c55e;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .send-button:hover {
+            background: #16a34a;
+        }
+
+        .send-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
         /* Loading Animation */
         .loading {
             display: none;
@@ -680,6 +779,26 @@
                                     <h3>Tomatoes</h3>
                                     <p>Vegetable crop</p>
                                 </div>
+                                <div class="selection-card" data-value="beans">
+                                    <i class="fas fa-seedling"></i>
+                                    <h3>Beans</h3>
+                                    <p>Legume crop</p>
+                                </div>
+                                <div class="selection-card" data-value="potatoes">
+                                    <i class="fas fa-seedling"></i>
+                                    <h3>Potatoes</h3>
+                                    <p>Tuber crop</p>
+                                </div>
+                                <div class="selection-card" data-value="onions">
+                                    <i class="fas fa-seedling"></i>
+                                    <h3>Onions</h3>
+                                    <p>Bulb crop</p>
+                                </div>
+                                <div class="selection-card" data-value="cassava">
+                                    <i class="fas fa-seedling"></i>
+                                    <h3>Cassava</h3>
+                                    <p>Root crop</p>
+                                </div>
                             </div>
                         </div>
 
@@ -750,15 +869,15 @@
                             <h3>Loss Prediction</h3>
                         </div>
                         <div class="metric">
-                            <span class="metric-label">Predicted Loss</span>
+                            <span class="metric-label">Expected Loss</span>
                             <span class="metric-value" id="lossPercentage">-</span>
                         </div>
                         <div class="metric">
-                            <span class="metric-label">Confidence</span>
+                            <span class="metric-label">How Sure We Are</span>
                             <span class="metric-value" id="confidence">-</span>
                         </div>
                         <div class="metric">
-                            <span class="metric-label">Risk Level</span>
+                            <span class="metric-label">Urgency Level</span>
                             <span class="metric-value" id="riskLevel">-</span>
                         </div>
                         <div class="recommendation-box">
@@ -774,15 +893,15 @@
                             <h3>Market Analysis</h3>
                         </div>
                         <div class="metric">
-                            <span class="metric-label">Current Price</span>
+                            <span class="metric-label">Price Right Now</span>
                             <span class="metric-value" id="currentPrice">-</span>
                         </div>
                         <div class="metric">
-                            <span class="metric-label">7-Day Forecast</span>
+                            <span class="metric-label">Price Next Week</span>
                             <span class="metric-value" id="forecastPrice">-</span>
                         </div>
                         <div class="metric">
-                            <span class="metric-label">Best Time to Sell</span>
+                            <span class="metric-label">When to Sell</span>
                             <span class="metric-value" id="sellTiming">-</span>
                         </div>
                         <div class="recommendation-box">
@@ -815,19 +934,32 @@
                         </div>
                     </div>
 
-                    <!-- AI Insights Card -->
+                    <!-- AI Chatbot Card -->
                     <div class="analysis-card fade-in">
                         <div class="analysis-header">
                             <i class="fas fa-robot"></i>
-                            <h3>AI Insights</h3>
+                            <h3>HarvestLink AI Assistant</h3>
                         </div>
-                        <div class="recommendation-box">
-                            <h4>Smart Recommendations</h4>
-                            <div id="aiInsights"></div>
-                        </div>
-                        <div class="recommendation-box" style="margin-top: 1rem;">
-                            <h4>Storage Advice</h4>
-                            <div id="storageAdvice"></div>
+                        <div class="chatbot-section">
+                            <div class="chatbot-header">
+                                <h4>Need more help? Ask HarvestLink AI!</h4>
+                                <p>Get personalized advice for your specific situation</p>
+                            </div>
+                            <div class="chatbot-container">
+                                <div class="chat-messages" id="chatMessages">
+                                    <div class="chat-message bot-message">
+                                        <div class="message-content">
+                                            <strong>HarvestLink AI:</strong> Hi! I'm here to help with your farming questions. What would you like to know about your crop?
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chat-input-container">
+                                    <input type="text" id="chatInput" placeholder="Ask me anything about your crop..." class="chat-input">
+                                    <button id="sendMessage" class="send-button">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -945,6 +1077,14 @@
                 e.preventDefault();
                 analyzeCrop();
             });
+
+            // Chatbot functionality
+            document.getElementById('sendMessage').addEventListener('click', sendChatMessage);
+            document.getElementById('chatInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendChatMessage();
+                }
+            });
         }
 
         async function loadWeatherData() {
@@ -1008,7 +1148,7 @@
             // Loss Analysis
             document.getElementById('lossPercentage').textContent = `${data.loss_analysis.predicted_loss_percentage}%`;
             document.getElementById('confidence').textContent = `${data.loss_analysis.confidence_score}%`;
-            document.getElementById('riskLevel').textContent = data.ai_summary.risk_level;
+            document.getElementById('riskLevel').textContent = data.loss_analysis.urgency_level || data.ai_summary.risk_level;
             
             // Clear and populate recommendations
             const lossRecs = document.getElementById('lossRecommendations');
@@ -1121,6 +1261,75 @@
                 }
             });
         });
+
+        // Chatbot Functions
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            addChatMessage(message, 'user');
+            input.value = '';
+            
+            // Disable send button
+            const sendButton = document.getElementById('sendMessage');
+            sendButton.disabled = true;
+            sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        context: {
+                            crop: selectedCrop,
+                            location: document.getElementById('location').value,
+                            quantity: document.getElementById('quantity').value
+                        }
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    addChatMessage(result.response, 'bot');
+                } else {
+                    addChatMessage('Sorry, I had trouble understanding. Can you try asking again?', 'bot');
+                }
+            } catch (error) {
+                console.error('Chat error:', error);
+                addChatMessage('Sorry, I\'m having technical difficulties. Please try again later.', 'bot');
+            } finally {
+                sendButton.disabled = false;
+                sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            }
+        }
+        
+        function addChatMessage(message, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}-message`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            if (sender === 'user') {
+                contentDiv.innerHTML = `<strong>You:</strong> ${message}`;
+            } else {
+                contentDiv.innerHTML = `<strong>HarvestLink AI:</strong> ${message}`;
+            }
+            
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
     </script>
 </body>
 </html>
