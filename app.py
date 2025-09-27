@@ -41,8 +41,13 @@ def init_db():
     conn = sqlite3.connect('harvestlink.db')
     cursor = conn.cursor()
     
+    # Drop existing tables to ensure clean schema
+    cursor.execute('DROP TABLE IF EXISTS farmers')
+    cursor.execute('DROP TABLE IF EXISTS buyers')
+    cursor.execute('DROP TABLE IF EXISTS ussd_sessions')
+    
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS farmers (
+        CREATE TABLE farmers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             phone_number TEXT UNIQUE,
             name TEXT,
@@ -55,7 +60,7 @@ def init_db():
     ''')
     
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS buyers (
+        CREATE TABLE buyers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             phone TEXT,
@@ -69,7 +74,7 @@ def init_db():
     ''')
     
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS ussd_sessions (
+        CREATE TABLE ussd_sessions (
             session_id TEXT PRIMARY KEY,
             data TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
