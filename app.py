@@ -886,7 +886,7 @@ def handle_whatsapp():
             print(f"WhatsApp webhook received: {data}")
             
             # Check if it's Twilio WhatsApp format
-            if 'MessageSid' in data:
+            if data and 'MessageSid' in data:
                 # Twilio WhatsApp format
                 phone_number = data['From'].replace('whatsapp:', '')
                 message_text = data['Body']
