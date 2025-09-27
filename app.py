@@ -576,6 +576,8 @@ Format your response with clear sections if needed. Do NOT start with "Certainly
 
 def format_ai_response(response):
     """Format AI response for better readability"""
+    import re
+    
     # Remove common AI prefixes
     prefixes_to_remove = [
         "Certainly! Here is a comprehensive",
@@ -591,6 +593,12 @@ def format_ai_response(response):
         if response.startswith(prefix):
             response = response[len(prefix):].strip()
             break
+    
+    # Convert markdown bold (**text**) to HTML bold
+    response = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', response)
+    
+    # Convert markdown italic (*text*) to HTML italic
+    response = re.sub(r'\*(.*?)\*', r'<em>\1</em>', response)
     
     # Add proper spacing and formatting
     lines = response.split('\n')
