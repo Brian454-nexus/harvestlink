@@ -479,8 +479,20 @@
 
         .metric-value {
             font-weight: 600;
-            color: #111827;
+            color: #059669;
             font-size: 1rem;
+        }
+
+        .metric-value.high {
+            color: #dc2626;
+        }
+
+        .metric-value.medium {
+            color: #d97706;
+        }
+
+        .metric-value.low {
+            color: #059669;
         }
 
         .recommendation-box {
@@ -512,7 +524,7 @@
         }
 
         .recommendation-box li::before {
-            content: '•';
+            content: '✓';
             position: absolute;
             left: 0;
             color: #059669;
@@ -974,10 +986,64 @@
             animation: spin 1s linear infinite;
         }
 
+        /* Prevent Layout Shifts and Dancing Interface */
+        .selection-card {
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .analysis-card {
+            min-height: 200px;
+        }
+
+        .chatbot-container {
+            min-height: 500px;
+        }
+
+        .chat-messages {
+            min-height: 300px;
+        }
+
+        /* Smooth Transitions */
+        .selection-card,
+        .analysis-card,
+        .chatbot-container {
+            transition: all 0.2s ease;
+        }
+
+        /* Prevent Text Overflow */
+        .metric-label,
+        .metric-value {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .message-content {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .hero {
+                padding: 3rem 0 2rem;
+            }
+
             .hero h1 {
-                font-size: 2.5rem;
+                font-size: 2rem;
+                line-height: 1.2;
+            }
+
+            .hero p {
+                font-size: 1rem;
+                margin-bottom: 2rem;
             }
 
             .nav-links {
@@ -986,14 +1052,91 @@
 
             .form-grid {
                 grid-template-columns: 1fr;
+                gap: 1.5rem;
             }
 
             .selection-cards {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+
+            .selection-card {
+                padding: 1rem;
+            }
+
+            .crop-emoji {
+                font-size: 2.5rem;
             }
 
             .analysis-grid {
                 grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .analysis-card {
+                padding: 1.5rem;
+            }
+
+            .chatbot-container {
+                height: 400px;
+            }
+
+            .chat-messages {
+                max-height: 300px;
+                padding: 1rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .onboarding-content {
+                padding: 2rem;
+                margin: 1rem;
+            }
+
+            .onboarding-features {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.75rem;
+            }
+
+            .selection-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .analysis-card {
+                padding: 1rem;
+            }
+
+            .chatbot-container {
+                height: 350px;
+            }
+
+            .chat-messages {
+                max-height: 250px;
+                padding: 0.75rem;
+            }
+
+            .message-content {
+                max-width: 90%;
+                padding: 0.75rem 1rem;
+            }
+
+            .onboarding-content {
+                padding: 1.5rem;
+                margin: 0.5rem;
             }
         }
 
