@@ -847,7 +847,20 @@ def format_buyer_matches(buyers):
 
 @app.route('/')
 def home():
-    return "🌾 HarvestLink SMS API - Empowering African Farmers!"
+    return '''
+    <h1>🌾 HarvestLink AI System</h1>
+    <p>Advanced AI-powered agricultural solution for smallholder farmers</p>
+    <p>SMS: Send crop details to get AI predictions and buyer matching</p>
+    <p>USSD: Dial *384*12345# for guided interaction</p>
+    <p>Webhook Test: <a href="/test">Test Endpoint</a></p>
+    '''
+
+@app.route('/test', methods=['GET', 'POST'])
+def test_endpoint():
+    if request.method == 'POST':
+        return f"POST received! Data: {request.form.to_dict()}"
+    else:
+        return "Test endpoint working! Send POST request to test webhook."
 
 if __name__ == '__main__':
     init_db()
